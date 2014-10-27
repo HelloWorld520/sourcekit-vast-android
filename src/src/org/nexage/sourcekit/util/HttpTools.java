@@ -22,7 +22,7 @@ public class HttpTools {
 				public void run() {
 					HttpURLConnection conn = null;
 					try {
-						SourceKitLogger.v(TAG, "connection to URL:" + url);
+						VASTLog.v(TAG, "connection to URL:" + url);
 						URL httpUrl = new URL(url);
 
 						HttpURLConnection.setFollowRedirects(true);
@@ -32,10 +32,10 @@ public class HttpTools {
 						conn.setRequestMethod("GET");
 
 						int code = conn.getResponseCode();
-						SourceKitLogger.v(TAG, "response code:" + code
+						VASTLog.v(TAG, "response code:" + code
 								+ ", for URL:" + url);
 					} catch (Exception e) {
-						SourceKitLogger.w(TAG, url + ": " + e.getMessage() + ":"
+						VASTLog.w(TAG, url + ": " + e.getMessage() + ":"
 								+ e.toString());
 					} finally {
 						if (conn != null) {
@@ -48,7 +48,7 @@ public class HttpTools {
 				}
 			}.start();
 		} else {
-			SourceKitLogger.w(TAG, "url is null or empty");
+			VASTLog.w(TAG, "url is null or empty");
 			
 		}
 

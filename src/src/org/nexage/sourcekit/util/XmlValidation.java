@@ -21,7 +21,7 @@ public class XmlValidation {
 	private static String TAG = "XmlTools";
 
 	public static boolean validate(InputStream schemaStream, String xml) {
-		SourceKitLogger.i(TAG, "Beginning XSD validation.");
+		VASTLog.i(TAG, "Beginning XSD validation.");
 		SchemaFactory factory = new XMLSchemaFactory();
 		Source schemaSource = new StreamSource(schemaStream);
 		Source xmlSource = new StreamSource(new ByteArrayInputStream(xml.getBytes()));
@@ -31,10 +31,10 @@ public class XmlValidation {
             Validator validator = schema.newValidator();
             validator.validate(xmlSource);
         } catch (Exception e) {
-			SourceKitLogger.e(TAG, e.getMessage(), e);
+        	VASTLog.e(TAG, e.getMessage(), e);
             return false;
         }
-		SourceKitLogger.i(TAG, "Completed XSD validation..");
+        VASTLog.i(TAG, "Completed XSD validation..");
 		return true;
 	}
 

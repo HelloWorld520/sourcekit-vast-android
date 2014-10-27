@@ -31,7 +31,7 @@ public class XmlTools {
 	private static String TAG = "XmlTools";
 	
 	public static void logXmlDocument(Document doc) {
-		SourceKitLogger.d(TAG, "logXmlDocument");
+		VASTLog.d(TAG, "logXmlDocument");
 		try {
 			TransformerFactory tf = TransformerFactory.newInstance();
 			Transformer transformer = tf.newTransformer();
@@ -46,17 +46,17 @@ public class XmlTools {
 			StringWriter sw = new StringWriter();
 			transformer.transform(new DOMSource(doc), new StreamResult(sw));
 
-			SourceKitLogger.d(TAG, sw.toString());
+			VASTLog.d(TAG, sw.toString());
 
 		} catch (Exception e) {
-			SourceKitLogger.e(TAG, e.getMessage(), e);
+			VASTLog.e(TAG, e.getMessage(), e);
 ;
 		}
 	}
 
 	public static String xmlDocumentToString(Document doc) {
 		String xml = null;
-		SourceKitLogger.d(TAG, "xmlDocumentToString");
+		VASTLog.d(TAG, "xmlDocumentToString");
 		try {
 			TransformerFactory tf = TransformerFactory.newInstance();
 			Transformer transformer = tf.newTransformer();
@@ -74,7 +74,7 @@ public class XmlTools {
 			xml = sw.toString();
 
 		} catch (Exception e) {
-			SourceKitLogger.e(TAG, e.getMessage(), e);
+			VASTLog.e(TAG, e.getMessage(), e);
 		}
 
 		return xml;
@@ -82,7 +82,7 @@ public class XmlTools {
 
 	public static String xmlDocumentToString(Node node) {
 		String xml = null;
-		SourceKitLogger.d(TAG, "xmlDocumentToString");
+		VASTLog.d(TAG, "xmlDocumentToString");
 		try {
 			TransformerFactory tf = TransformerFactory.newInstance();
 			Transformer transformer = tf.newTransformer();
@@ -100,13 +100,13 @@ public class XmlTools {
 			xml = sw.toString();
 
 		} catch (Exception e) {
-			SourceKitLogger.e(TAG, e.getMessage(), e);
+			VASTLog.e(TAG, e.getMessage(), e);
 		}
 
 		return xml;
 	}
 	public static Document stringToDocument(String doc) {
-		SourceKitLogger.d(TAG, "stringToDocument");
+		VASTLog.d(TAG, "stringToDocument");
 	
 		DocumentBuilder db;
 		Document document = null;
@@ -119,7 +119,7 @@ public class XmlTools {
 			document = db.parse(is);
 
 		} catch (Exception e) {
-			SourceKitLogger.e(TAG, e.getMessage(), e);
+			VASTLog.e(TAG, e.getMessage(), e);
 		}
 		return document;
 
@@ -127,7 +127,7 @@ public class XmlTools {
 
 	public static String stringFromStream(InputStream inputStream)
 			throws IOException {
-		SourceKitLogger.d(TAG, "stringFromStream");
+		VASTLog.d(TAG, "stringFromStream");
 		
 		ByteArrayOutputStream baos = new ByteArrayOutputStream();
 		byte[] buffer = new byte[1024];
@@ -160,7 +160,7 @@ public class XmlTools {
 				continue;
 			}
 		
-			SourceKitLogger.v(TAG, "getElementValue: " + value);
+			VASTLog.v(TAG, "getElementValue: " + value);
 			return value;
 
 		}

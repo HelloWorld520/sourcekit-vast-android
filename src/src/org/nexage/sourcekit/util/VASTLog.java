@@ -10,7 +10,7 @@ package org.nexage.sourcekit.util;
 
 import android.util.Log;
 
-public class SourceKitLogger {
+public class VASTLog {
 
 	private static String TAG = "SourceKitLogger";
 	

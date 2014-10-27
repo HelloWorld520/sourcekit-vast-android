@@ -10,16 +10,15 @@ package org.nexage.sourcekit.vast.activity;
 import static android.view.View.GONE;
 import static android.view.View.VISIBLE;
 
-import java.io.IOException;
-import java.io.InputStream;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
 
+import org.nexage.sourcekit.util.Assets;
 import org.nexage.sourcekit.util.HttpTools;
-import org.nexage.sourcekit.util.SourceKitLogger;
+import org.nexage.sourcekit.util.VASTLog;
 import org.nexage.sourcekit.vast.model.TRACKING_EVENTS_TYPE;
 import org.nexage.sourcekit.vast.model.VASTModel;
 
@@ -28,7 +27,6 @@ import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.content.res.Configuration;
 import android.graphics.Color;
-import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
@@ -62,12 +60,6 @@ public class VASTActivity extends Activity implements OnCompletionListener,
 
 	private static final double SKIP_INFO_PADDING_SCALE = 0.10;
 	private static final double SKIP_INFO_SCALE = 0.15;
-
-	// button image constants:
-	private static final String INFO_BUTTON_IMAGE = "assets/info.png";
-	private static final String CLOSE_BUTTON_IMAGE = "assets/exit.png";
-	private static final String PLAY_BUTTON_IMAGE = "assets/play.png";
-	private static final String PAUSE_BUTTON_IMAGE = "assets/pause.png";
 
 	// timer delays
 	private static final long TOOLBAR_HIDE_DELAY = 3000;
@@ -108,6 +100,7 @@ public class VASTActivity extends Activity implements OnCompletionListener,
 	private boolean mIsVideoPaused = false;
 	private boolean mIsPlayBackError = false;
 	private boolean mIsProcessedImpressions = false;
+	private boolean mIsCompleted = false;
 	private int mCurrentVideoPosition;
 	private int mQuartile = 0;
 	
@@ -115,25 +108,25 @@ public class VASTActivity extends Activity implements OnCompletionListener,
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
-		SourceKitLogger.d(TAG, "in onCreate");
+		VASTLog.d(TAG, "in onCreate");
 		super.onCreate(savedInstanceState);
 
 		int currentOrientation = this.getResources().getConfiguration().orientation;
-		SourceKitLogger.d(TAG, "currentOrientation:" + currentOrientation);
+		VASTLog.d(TAG, "currentOrientation:" + currentOrientation);
 
 		if (currentOrientation != Configuration.ORIENTATION_LANDSCAPE) {
-			SourceKitLogger.d(TAG,
+			VASTLog.d(TAG,
 					"Orientation is not landscape.....forcing landscape");
 			setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
 
 		} else {
-			SourceKitLogger.d(TAG, "orientation is landscape");
+			VASTLog.d(TAG, "orientation is landscape");
 			Intent i = getIntent();
 			mVastModel = (VASTModel) i
-					.getSerializableExtra("org.nexage.sourcekit.vast.player.vastModel");
+					.getSerializableExtra("com.nexage.android.vast.player.vastModel");
 
 			if (mVastModel == null) {
-				SourceKitLogger.e(TAG, "vastModel is null. Stopping activity.");
+				VASTLog.e(TAG, "vastModel is null. Stopping activity.");
 				finish();
 			} else {
 				hideTitleStatusBars();
@@ -155,28 +148,28 @@ public class VASTActivity extends Activity implements OnCompletionListener,
 
 	@Override
 	protected void onStart() {
-		SourceKitLogger.d(TAG, "entered onStart --(life cycle event)");
+		VASTLog.d(TAG, "entered onStart --(life cycle event)");
 		super.onStart();
 
 	}
 
 	@Override
 	protected void onResume() {
-		SourceKitLogger.d(TAG, "entered on onResume --(life cycle event)");
+		VASTLog.d(TAG, "entered on onResume --(life cycle event)");
 		super.onResume();
 
 	}
   
 	@Override
 	protected void onStop() {
-		SourceKitLogger.d(TAG, "entered on onStop --(life cycle event)");
+		VASTLog.d(TAG, "entered on onStop --(life cycle event)");
 		super.onStop();
 
 	}
 
 	@Override
 	protected void onRestart() {
-		SourceKitLogger.d(TAG, "entered on onRestart --(life cycle event)");
+		VASTLog.d(TAG, "entered on onRestart --(life cycle event)");
 		super.onRestart();
 		createMediaPlayer();				
 
@@ -184,7 +177,7 @@ public class VASTActivity extends Activity implements OnCompletionListener,
 
 	@Override
 	protected void onPause() {
-		SourceKitLogger.d(TAG, "entered on onPause --(life cycle event)");
+		VASTLog.d(TAG, "entered on onPause --(life cycle event)");
 		super.onPause();
 		
 		if (mMediaPlayer != null) {
@@ -195,7 +188,7 @@ public class VASTActivity extends Activity implements OnCompletionListener,
 
 	@Override
 	protected void onDestroy() {
-		SourceKitLogger.d(TAG, "entered on onDestroy --(life cycle event)");
+		VASTLog.d(TAG, "entered on onDestroy --(life cycle event)");
 		super.onDestroy();
 
 	}
@@ -203,13 +196,13 @@ public class VASTActivity extends Activity implements OnCompletionListener,
 	@Override
 	public void onSaveInstanceState(Bundle savedInstanceState) {
 
-		SourceKitLogger.d(TAG, "entered onSaveInstanceState ");
+		VASTLog.d(TAG, "entered onSaveInstanceState ");
 		super.onSaveInstanceState(savedInstanceState);
 	}
 
 	@Override
 	public void onRestoreInstanceState(Bundle savedInstanceState) {
-		SourceKitLogger.d(TAG, "in onRestoreInstanceState");
+		VASTLog.d(TAG, "in onRestoreInstanceState");
 		super.onRestoreInstanceState(savedInstanceState);
 
 	}
@@ -350,7 +343,7 @@ public class VASTActivity extends Activity implements OnCompletionListener,
 
 			mInfoButton = new ImageButton(this);
 
-			Drawable drawable = this.createDrawable(INFO_BUTTON_IMAGE);
+			Drawable drawable = Assets.getDrawableFromBase64(getResources(), Assets.info);
 
 			mInfoButton.setImageDrawable(drawable);		
 			mInfoButton.setLayoutParams(params);
@@ -379,7 +372,7 @@ public class VASTActivity extends Activity implements OnCompletionListener,
 		mCloseButton = new ImageButton(this);
 		mCloseButton.setId(22);
 
-		Drawable drawable = this.createDrawable(CLOSE_BUTTON_IMAGE);
+		Drawable drawable = Assets.getDrawableFromBase64(getResources(), Assets.exit);
 
 		mCloseButton.setImageDrawable(drawable);
 		mCloseButton.setLayoutParams(params);
@@ -402,8 +395,8 @@ public class VASTActivity extends Activity implements OnCompletionListener,
 		LayoutParams params = new RelativeLayout.LayoutParams(size, size);
 		params.addRule(RelativeLayout.ALIGN_PARENT_LEFT);
 
-		mPauseDrawable = this.createDrawable(PAUSE_BUTTON_IMAGE);
-		mPlayDrawable = this.createDrawable(PLAY_BUTTON_IMAGE);
+		mPauseDrawable = Assets.getDrawableFromBase64(getResources(), Assets.pause);
+		mPlayDrawable = Assets.getDrawableFromBase64(getResources(), Assets.play);
 
 		mPlayPauseButton = new ImageButton(this);
 		mPlayPauseButton.setImageDrawable(mPauseDrawable);
@@ -424,21 +417,8 @@ public class VASTActivity extends Activity implements OnCompletionListener,
 		mButtonPanel.addView(mPlayPauseButton);
 	}
 
-	private Drawable createDrawable(String resourceName) {
-
-		InputStream stream = getClass().getResourceAsStream(resourceName);
-		Drawable drawable = new BitmapDrawable(this.getResources(), stream);
-
-		try {
-			stream.close();
-		} catch (IOException e1) {
-		}
-
-		return drawable;
-	}
-
 	private void infoClicked() {
-		SourceKitLogger.d(TAG, "entered infoClicked:");
+		VASTLog.d(TAG, "entered infoClicked:");
 		
 		activateButtons(false);
 		
@@ -454,7 +434,7 @@ public class VASTActivity extends Activity implements OnCompletionListener,
 	}
 
 	private void activateButtons (boolean active) {
-		SourceKitLogger.d(TAG, "entered activateButtons:");
+		VASTLog.d(TAG, "entered activateButtons:");
 		
 		if (active) {
 			mButtonPanel.setVisibility(VISIBLE);	
@@ -465,10 +445,10 @@ public class VASTActivity extends Activity implements OnCompletionListener,
 		
 	}
 	private void processClickThroughEvent() {
-		SourceKitLogger.d(TAG, "entered processClickThroughEvent:");
+		VASTLog.d(TAG, "entered processClickThroughEvent:");
 		
 		String clickThroughUrl = mVastModel.getVideoClicks().getClickThrough();
-		SourceKitLogger.d(TAG, "clickThrough url: " + clickThroughUrl);
+		VASTLog.d(TAG, "clickThrough url: " + clickThroughUrl);
 
 		
 		// Before we send the app to the click through url, we will process ClickTracking URL's.
@@ -481,13 +461,13 @@ public class VASTActivity extends Activity implements OnCompletionListener,
 			Intent intent = new Intent(Intent.ACTION_VIEW, uri);
 			startActivity(intent);
 		} catch (NullPointerException e) {
-			SourceKitLogger.e(TAG, e.getMessage(), e);
+			VASTLog.e(TAG, e.getMessage(), e);
 		}
 	}
 
 	private void closeClicked() {
 
-		SourceKitLogger.d(TAG, "entered closeClicked()");
+		VASTLog.d(TAG, "entered closeClicked()");
 		cleanActivityUp();
 		
 		if (!mIsPlayBackError) {
@@ -497,25 +477,29 @@ public class VASTActivity extends Activity implements OnCompletionListener,
 		
 		finish();
 
-		SourceKitLogger.d(TAG, "leaving closeClicked()");
+		VASTLog.d(TAG, "leaving closeClicked()");
 	}
 
 	private void playPauseButtonClicked() {
-		SourceKitLogger.d(TAG, "entered playPauseClicked");
-
+		VASTLog.d(TAG, "entered playPauseClicked");
+		if(mMediaPlayer==null) {
+			VASTLog.e(TAG, "mMediaPlayer is null when playPauseButton was clicked");
+			return;
+		}
 		boolean isPlaying = mMediaPlayer.isPlaying();
-		SourceKitLogger.d(TAG, "isPlaying:" + isPlaying);
+		VASTLog.d(TAG, "isPlaying:" + isPlaying);
 		
 		if (isPlaying) {
 			//pause
 			processPauseSteps();
 			
-		} else if (mIsVideoPaused){
+		} else if(mIsVideoPaused) {
 			//play
-			this.processPlaySteps();			
-			this.processEvent(TRACKING_EVENTS_TYPE.resume);
-			
-		}else {
+			this.processPlaySteps();		
+			if(!mIsCompleted) {
+				this.processEvent(TRACKING_EVENTS_TYPE.resume);
+			}
+		} else {
 			//replay
 			this.processPlaySteps();
 			mQuartile = 0;
@@ -529,7 +513,9 @@ public class VASTActivity extends Activity implements OnCompletionListener,
 		this.stopVideoProgressTimer();
 		this.stopToolBarTimer();
 		mPlayPauseButton.setImageDrawable(mPlayDrawable);
-		this.processEvent(TRACKING_EVENTS_TYPE.pause);	
+		if(!mIsCompleted) {
+			this.processEvent(TRACKING_EVENTS_TYPE.pause);
+		}
 	}
 
 
@@ -544,36 +530,36 @@ public class VASTActivity extends Activity implements OnCompletionListener,
 	
 	@Override
 	public void onBackPressed() {
-		SourceKitLogger.d(TAG, "entered onBackPressed");
+		VASTLog.d(TAG, "entered onBackPressed");
 		this.closeClicked();
 
 	}
 
 	public void surfaceCreated(SurfaceHolder holder) {
-		SourceKitLogger.d(TAG, "surfaceCreated -- (SurfaceHolder callback)");
+		VASTLog.d(TAG, "surfaceCreated -- (SurfaceHolder callback)");
 		try {
 			this.showProgressBar();
 			mMediaPlayer.setDisplay(mSurfaceHolder);
 			String url = mVastModel.getPickedMediaFileURL();
 
-			SourceKitLogger.d(TAG, "URL for media file:" + url);
+			VASTLog.d(TAG, "URL for media file:" + url);
 			mMediaPlayer.setDataSource(url);
 			mMediaPlayer.prepareAsync();
 		} catch (Exception e) {
-			SourceKitLogger.e(TAG, e.getMessage(), e);
+			VASTLog.e(TAG, e.getMessage(), e);
 		}
 	}
 
 	@Override
 	public void surfaceChanged(SurfaceHolder surfaceHolder, int arg1, int arg2,
 			int arg3) {
-		SourceKitLogger.d(TAG,
+		VASTLog.d(TAG,
 				"entered surfaceChanged -- (SurfaceHolder callback)");
 	}
 
 	@Override
 	public void surfaceDestroyed(SurfaceHolder surfaceHolder) {
-		SourceKitLogger
+		VASTLog
 				.d(TAG,
 						"entered surfaceDestroyed -- (SurfaceHolder callback)");
 		cleanUpMediaPlayer();
@@ -582,17 +568,17 @@ public class VASTActivity extends Activity implements OnCompletionListener,
 
 	@Override
 	public void onVideoSizeChanged(MediaPlayer mp, int width, int height) {
-		SourceKitLogger
+		VASTLog
 				.d(TAG,
 						"entered onVideoSizeChanged -- (MediaPlayer callback)");
 		mVideoWidth = width;
 		mVideoHeight = height;
-		SourceKitLogger.d(TAG, "video size: " + mVideoWidth + "x" + mVideoHeight);
+		VASTLog.d(TAG, "video size: " + mVideoWidth + "x" + mVideoHeight);
 	}
 
 	@Override
 	public void onPrepared(MediaPlayer mp) {
-		SourceKitLogger
+		VASTLog
 				.d(TAG,
 						"entered onPrepared called --(MediaPlayer callback) ....about to play");
 
@@ -603,17 +589,16 @@ public class VASTActivity extends Activity implements OnCompletionListener,
 		this.hideProgressBar();
 
 		if (mIsVideoPaused) {
-			SourceKitLogger.d(TAG, "pausing video");
+			VASTLog.d(TAG, "pausing video");
 			mMediaPlayer.pause();
-
 		} else {
 			this.startVideoProgressTimer();
 		}
 
-		SourceKitLogger.d(TAG, "current location in video:"
+		VASTLog.d(TAG, "current location in video:"
 				+ mCurrentVideoPosition);
 		if (mCurrentVideoPosition > 0) {
-			SourceKitLogger.d(TAG, "seeking to location:"
+			VASTLog.d(TAG, "seeking to location:"
 					+ mCurrentVideoPosition);
 			mMediaPlayer.seekTo(mCurrentVideoPosition);
 
@@ -623,21 +608,24 @@ public class VASTActivity extends Activity implements OnCompletionListener,
 			this.processImpressions();			
 		}
 		
-		this.startQuartileTimer();
-		this.startToolBarTimer();
-
+		startQuartileTimer();
+		startToolBarTimer();
+		
+		if(!mMediaPlayer.isPlaying() && !mIsVideoPaused) {
+			mMediaPlayer.start();
+		}
 	}
 
 
 	private void calculateAspectRatio() {
-		SourceKitLogger.d(TAG, "entered calculateAspectRatio");
+		VASTLog.d(TAG, "entered calculateAspectRatio");
 		
 		if ( mVideoWidth == 0 || mVideoHeight == 0 ) {
-			SourceKitLogger.w(TAG, "mVideoWidth or mVideoHeight is 0, skipping calculateAspectRatio");
+			VASTLog.w(TAG, "mVideoWidth or mVideoHeight is 0, skipping calculateAspectRatio");
 			return;
 		}
 		
-		SourceKitLogger.d(TAG, "calculating aspect ratio");
+		VASTLog.d(TAG, "calculating aspect ratio");
 		double widthRatio = 1.0 * mScreenWidth / mVideoWidth;
 		double heightRatio = 1.0 * mScreenHeight / mVideoHeight;
 
@@ -653,13 +641,13 @@ public class VASTActivity extends Activity implements OnCompletionListener,
 
 		mSurfaceHolder.setFixedSize(surfaceWidth, surfaceHeight);
 
-		SourceKitLogger
+		VASTLog
 				.d(TAG, " screen size: " + mScreenWidth + "x" + mScreenHeight);
-		SourceKitLogger.d(TAG, " video size:  " + mVideoWidth + "x" + mVideoHeight);
-		SourceKitLogger.d(TAG, " widthRatio:   " + widthRatio);
-		SourceKitLogger.d(TAG, " heightRatio:   " + heightRatio);
+		VASTLog.d(TAG, " video size:  " + mVideoWidth + "x" + mVideoHeight);
+		VASTLog.d(TAG, " widthRatio:   " + widthRatio);
+		VASTLog.d(TAG, " heightRatio:   " + heightRatio);
 
-		SourceKitLogger
+		VASTLog
 				.d(TAG, "surface size: " + surfaceWidth + "x" + surfaceHeight);
 
 	}
@@ -674,7 +662,7 @@ public class VASTActivity extends Activity implements OnCompletionListener,
 
 	private void cleanUpMediaPlayer() {
 
-		SourceKitLogger.d(TAG, "entered cleanUpMediaPlayer ");
+		VASTLog.d(TAG, "entered cleanUpMediaPlayer ");
 
 		if (mMediaPlayer != null) {
 
@@ -695,9 +683,9 @@ public class VASTActivity extends Activity implements OnCompletionListener,
 
 	@Override
 	public boolean onError(MediaPlayer mp, int what, int extra) {
-		SourceKitLogger.e(TAG, "entered onError -- (MediaPlayer callback)");
+		VASTLog.e(TAG, "entered onError -- (MediaPlayer callback)");
 		mIsPlayBackError = true;
-		SourceKitLogger.e(TAG, "Shutting down Activity due to Media Player errors: WHAT:" + what +": EXTRA:" + extra+":");
+		VASTLog.e(TAG, "Shutting down Activity due to Media Player errors: WHAT:" + what +": EXTRA:" + extra+":");
 
 		processErrorEvent();
 		this.closeClicked();
@@ -706,7 +694,7 @@ public class VASTActivity extends Activity implements OnCompletionListener,
 	}
 
 	private void processErrorEvent() {
-		SourceKitLogger.d(TAG, "entered processErrorEvent");
+		VASTLog.d(TAG, "entered processErrorEvent");
 	
 		List<String> errorUrls = mVastModel.getErrorUrl();		
 		fireUrls(errorUrls);
@@ -714,15 +702,15 @@ public class VASTActivity extends Activity implements OnCompletionListener,
 	}
 	@Override
 	public void onCompletion(MediaPlayer mediaPlayer) {
-		SourceKitLogger
+		VASTLog
 				.d(TAG, "entered onCOMPLETION -- (MediaPlayer callback)");
  
 		stopVideoProgressTimer();
 		stopToolBarTimer();
 		mButtonPanel.setVisibility(VISIBLE);
 		mPlayPauseButton.setImageDrawable(mPlayDrawable);		
-		
-		if ( !mIsPlayBackError) {			
+		if ( !mIsPlayBackError && !mIsCompleted) {
+			mIsCompleted = true;
 			this.processEvent(TRACKING_EVENTS_TYPE.complete);
 		}
 
@@ -733,7 +721,7 @@ public class VASTActivity extends Activity implements OnCompletionListener,
 	}
 
 	private void processImpressions() {
-		SourceKitLogger.d(TAG, "entered processImpressions");
+		VASTLog.d(TAG, "entered processImpressions");
 		
 		mIsProcessedImpressions = true;
 		List<String> impressions = mVastModel.getImpressions();
@@ -742,17 +730,17 @@ public class VASTActivity extends Activity implements OnCompletionListener,
 	}
 	
 	private void fireUrls(List<String> urls) {
-		SourceKitLogger.d(TAG, "entered fireUrls");
+		VASTLog.d(TAG, "entered fireUrls");
 		
 		if (urls != null) {
 			
 			for (String url : urls) {
-				SourceKitLogger.v(TAG, "\tfiring url:" + url);
+				VASTLog.v(TAG, "\tfiring url:" + url);
 				HttpTools.httpGetURL(url);
 			}
 			
 		}else {
-			SourceKitLogger.d(TAG, "\turl list is null");
+			VASTLog.d(TAG, "\turl list is null");
 		}
 			
 		
@@ -762,7 +750,7 @@ public class VASTActivity extends Activity implements OnCompletionListener,
 	// Timers
 
 	private void startToolBarTimer() {
-		SourceKitLogger.d(TAG, "entered startToolBarTimer");
+		VASTLog.d(TAG, "entered startToolBarTimer");
 
 		if (mMediaPlayer!= null && mMediaPlayer.isPlaying()) {   
 			stopToolBarTimer();
@@ -772,7 +760,7 @@ public class VASTActivity extends Activity implements OnCompletionListener,
 				public void run() {
 					mHandler.post(new Runnable() {
 						public void run() {
-							SourceKitLogger.d(TAG, "hiding buttons");
+							VASTLog.d(TAG, "hiding buttons");
 							mButtonPanel.setVisibility(GONE);
 						}
 					});
@@ -788,7 +776,7 @@ public class VASTActivity extends Activity implements OnCompletionListener,
 	}
 
 	private void stopToolBarTimer() {
-		SourceKitLogger.d(TAG, "entered stopToolBarTimer");
+		VASTLog.d(TAG, "entered stopToolBarTimer");
 		if (mToolBarTimer != null) {
 			mToolBarTimer.cancel();
 			mToolBarTimer = null;
@@ -796,9 +784,14 @@ public class VASTActivity extends Activity implements OnCompletionListener,
 	}
 
 	private void startQuartileTimer() {
-		SourceKitLogger.d(TAG, "entered startQuartileTimer");
+		VASTLog.d(TAG, "entered startQuartileTimer");
 		stopQuartileTimer();
 
+		if(mIsCompleted) {
+			VASTLog.d(TAG, "ending quartileTimer becuase the video has been replayed");
+			return;
+		}
+		
 		final int videoDuration = mMediaPlayer.getDuration();
 
 		mTrackingEventTimer = new Timer();
@@ -815,7 +808,7 @@ public class VASTActivity extends Activity implements OnCompletionListener,
 					}
 					percentage = 100 * curPos / videoDuration;
 				} catch (Exception e) {
-					SourceKitLogger.w(
+					VASTLog.w(
 							TAG,
 							"mediaPlayer.getCurrentPosition exception: "
 									+ e.getMessage());
@@ -825,19 +818,19 @@ public class VASTActivity extends Activity implements OnCompletionListener,
 
 				if (percentage >= 25 * mQuartile) {
 					if (mQuartile == 0) {
-						SourceKitLogger.i(TAG, "Video at start: (" + percentage
+						VASTLog.i(TAG, "Video at start: (" + percentage
 								+ "%)");
 						processEvent(TRACKING_EVENTS_TYPE.start);
 					} else if (mQuartile == 1) {
-						SourceKitLogger.i(TAG, "Video at first quartile: ("
+						VASTLog.i(TAG, "Video at first quartile: ("
 								+ percentage + "%)");
 						processEvent(TRACKING_EVENTS_TYPE.firstQuartile);
 					} else if (mQuartile == 2) {
-						SourceKitLogger.i(TAG, "Video at midpoint: ("
+						VASTLog.i(TAG, "Video at midpoint: ("
 								+ percentage + "%)");
 						processEvent(TRACKING_EVENTS_TYPE.midpoint);
 					} else if (mQuartile == 3) {
-						SourceKitLogger.i(TAG, "Video at third quartile: ("
+						VASTLog.i(TAG, "Video at third quartile: ("
 								+ percentage + "%)");
 						processEvent(TRACKING_EVENTS_TYPE.thirdQuartile);
 						stopQuartileTimer();
@@ -858,7 +851,7 @@ public class VASTActivity extends Activity implements OnCompletionListener,
 	}
 
 	private void startVideoProgressTimer() {
-		SourceKitLogger.d(TAG, "entered startVideoProgressTimer");
+		VASTLog.d(TAG, "entered startVideoProgressTimer");
 
 		mStartVideoProgressTimer = new Timer();
 		mVideoProgressTracker = new LinkedList<Integer>();
@@ -878,10 +871,10 @@ public class VASTActivity extends Activity implements OnCompletionListener,
 					int lastPosition = mVideoProgressTracker.getLast();
 
 					if (lastPosition > firstPosition) {
-						SourceKitLogger.v(TAG, "video progressing (position:"+lastPosition+")");
+						VASTLog.v(TAG, "video progressing (position:"+lastPosition+")");
 						mVideoProgressTracker.removeFirst();
 					} else {
-						SourceKitLogger.e(TAG, "detected video hang");
+						VASTLog.e(TAG, "detected video hang");
 						mIsPlayBackError = true;
 						stopVideoProgressTimer();
 						processErrorEvent();
@@ -903,17 +896,16 @@ public class VASTActivity extends Activity implements OnCompletionListener,
 	}
 
 	private void stopVideoProgressTimer() {
-		SourceKitLogger.d(TAG, "entered stopVideoProgressTimer");
+		VASTLog.d(TAG, "entered stopVideoProgressTimer");
 
 		if (mStartVideoProgressTimer != null) {
 
 			mStartVideoProgressTimer.cancel();
-
 		}
 	}
 
 	private void processEvent(TRACKING_EVENTS_TYPE eventName) {
-		SourceKitLogger.i(TAG, "entered Processing Event: " + eventName);
+		VASTLog.i(TAG, "entered Processing Event: " + eventName);
 		List<String> urls = (List<String>) mTrackingEventMap.get(eventName);
 
 		fireUrls(urls);

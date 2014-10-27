@@ -15,9 +15,8 @@ import java.nio.charset.Charset;
 
 import javax.xml.parsers.DocumentBuilderFactory;
 
-import org.nexage.sourcekit.util.SourceKitLogger;
+import org.nexage.sourcekit.util.VASTLog;
 import org.nexage.sourcekit.util.XmlTools;
-import org.nexage.sourcekit.util.XmlValidation;
 import org.nexage.sourcekit.vast.VASTPlayer;
 import org.nexage.sourcekit.vast.model.VASTModel;
 import org.nexage.sourcekit.vast.model.VAST_DOC_ELEMENTS;
@@ -38,8 +37,6 @@ public final class VASTProcessor {
 	// target file)
 	private static final int MAX_VAST_LEVELS = 5;
 
-	private static final boolean IS_VALIDATION_ON = false;
-
 	private VASTMediaPicker mediaPicker;
 	private VASTModel vastModel;
 	private StringBuilder mergedVastDocs = new StringBuilder(500);
@@ -53,7 +50,7 @@ public final class VASTProcessor {
 	}
 
 	public int process(String xmlData) {
-		SourceKitLogger.d(TAG, "process");
+		VASTLog.d(TAG, "process");
 		vastModel = null;
 		InputStream is = null;
 
@@ -62,7 +59,7 @@ public final class VASTProcessor {
 			is = new ByteArrayInputStream(xmlData.getBytes(Charset
 					.defaultCharset().name()));
 		} catch (UnsupportedEncodingException e) {
-			SourceKitLogger.e(TAG, e.getMessage(), e);
+			VASTLog.e(TAG, e.getMessage(), e);
 			return VASTPlayer.ERROR_XML_PARSE;
 		}
 
@@ -91,36 +88,30 @@ public final class VASTProcessor {
 	}
 
 	private Document wrapMergedVastDocWithVasts() {
-		SourceKitLogger.d(TAG, "wrapmergedVastDocWithVasts");
+		VASTLog.d(TAG, "wrapmergedVastDocWithVasts");
 		mergedVastDocs.insert(0,"<VASTS>");
 		mergedVastDocs.append("</VASTS>");
 		
 		String merged = mergedVastDocs.toString();
-		SourceKitLogger.v(TAG, "Merged VAST doc:\n"+merged);
+		VASTLog.v(TAG, "Merged VAST doc:\n"+merged);
 		
 		Document doc = XmlTools.stringToDocument(merged);
 		return doc;
 		
 	}
 	private int processUri(InputStream is, int depth) {
-		SourceKitLogger.d(TAG, "processUri");
+		VASTLog.d(TAG, "processUri");
 
 		if (depth >= MAX_VAST_LEVELS) {
 			String message = "VAST wrapping exceeded max limit of "
 					+ MAX_VAST_LEVELS + ".";
-			SourceKitLogger.e(TAG, message);
+			VASTLog.e(TAG, message);
 			return VASTPlayer.ERROR_EXCEEDED_WRAPPER_LIMIT;
 		}
 
 		Document doc = createDoc(is);
 		if (doc == null) {
 			return VASTPlayer.ERROR_XML_PARSE;
-		}
-
-		if (IS_VALIDATION_ON) {
-			if (!validateAgainstSchema(doc)) {
-				return VASTPlayer.ERROR_SCHEMA_VALIDATION;
-			}
 		}
 
 		merge(doc);
@@ -134,16 +125,16 @@ public final class VASTProcessor {
 		} else {
 			// This is a wrapper ad, so move on to the wrapped ad and process
 			// it.
-			SourceKitLogger.d(TAG, "Doc is a wrapper. ");
+			VASTLog.d(TAG, "Doc is a wrapper. ");
 			Node node = uriToNextDoc.item(0);
 			String nextUri = XmlTools.getElementValue(node);
-			SourceKitLogger.d(TAG, "Wrapper URL: " + nextUri);
+			VASTLog.d(TAG, "Wrapper URL: " + nextUri);
 			InputStream nextInputStream = null;
 			try {
 				URL nextUrl = new URL(nextUri);
 				nextInputStream = nextUrl.openStream();
 			} catch (Exception e) {
-				SourceKitLogger.e(TAG, e.getMessage(), e);
+				VASTLog.e(TAG, e.getMessage(), e);
 				return VASTPlayer.ERROR_XML_OPEN_OR_READ;
 			}
 			int error = processUri(nextInputStream, depth + 1);
@@ -158,21 +149,21 @@ public final class VASTProcessor {
 
 
 	private Document createDoc(InputStream is) {
-		SourceKitLogger.d(TAG, "About to create doc from InputStream");
+		VASTLog.d(TAG, "About to create doc from InputStream");
 		try {
 			Document doc = DocumentBuilderFactory.newInstance()
 					.newDocumentBuilder().parse(is);
 			doc.getDocumentElement().normalize();
-			SourceKitLogger.d(TAG, "Doc successfully created.");
+			VASTLog.d(TAG, "Doc successfully created.");
 			return doc;
 		} catch (Exception e) {
-			SourceKitLogger.e(TAG, e.getMessage(), e);
+			VASTLog.e(TAG, e.getMessage(), e);
 			return null;
 		}
 	}
 
 	private void merge(Document newDoc) {
-		SourceKitLogger.d(TAG, "About to merge doc into main doc.");
+		VASTLog.d(TAG, "About to merge doc into main doc.");
 		
 		NodeList nl = newDoc.getElementsByTagName("VAST");
 		
@@ -181,21 +172,7 @@ public final class VASTProcessor {
 		String doc = XmlTools.xmlDocumentToString(newDocElement);
 		mergedVastDocs.append(doc);
 		
-		SourceKitLogger.d(TAG, "Merge successful.");
-	}
-
-	// Validator using mfXerces.....
-	private boolean validateAgainstSchema(Document doc) {
-		SourceKitLogger.d(TAG, "About to validate doc against schema.");
-		InputStream stream = VASTProcessor.class
-				.getResourceAsStream("assets/vast_2_0_1_schema.xsd");
-		String xml = XmlTools.xmlDocumentToString(doc);
-		boolean isValid = XmlValidation.validate(stream, xml);
-		try {
-			stream.close();
-		} catch (IOException e) {
-		}
-		return isValid;
+		VASTLog.d(TAG, "Merge successful.");
 	}
 
 }

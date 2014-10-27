@@ -79,7 +79,7 @@ public class DefaultMediaPicker implements VASTMediaPicker {
 			// type attribute
 			String type = mediaFile.getType();
 			if (TextUtils.isEmpty(type)) {
-				SourceKitLogger.d(TAG, "Validator error: mediaFile type empty");
+				VASTLog.d(TAG, "Validator error: mediaFile type empty");
 				iter.remove();
 				continue;
 			}
@@ -88,14 +88,14 @@ public class DefaultMediaPicker implements VASTMediaPicker {
 			BigInteger height = mediaFile.getHeight();
 
 			if (null == height) {
-				SourceKitLogger
+				VASTLog
 						.d(TAG, "Validator error: mediaFile height null");
 				iter.remove();
 				continue;
 			} else {
 				int videoHeight = height.intValue();
 				if (!(0 < videoHeight && videoHeight < maxPixels)) {
-					SourceKitLogger.d(TAG,
+					VASTLog.d(TAG,
 							"Validator error: mediaFile height invalid: "
 									+ videoHeight);
 					iter.remove();
@@ -106,13 +106,13 @@ public class DefaultMediaPicker implements VASTMediaPicker {
 			// width attribute
 			BigInteger width = mediaFile.getWidth();
 			if (null == width) {
-				SourceKitLogger.d(TAG, "Validator error: mediaFile width null");
+				VASTLog.d(TAG, "Validator error: mediaFile width null");
 				iter.remove();
 				continue;
 			} else {
 				int videoWidth = width.intValue();
 				if (!(0 < videoWidth && videoWidth < maxPixels)) {
-					SourceKitLogger.d(TAG,
+					VASTLog.d(TAG,
 							"Validator error: mediaFile width invalid: "
 									+ videoWidth);
 					iter.remove();
@@ -123,7 +123,7 @@ public class DefaultMediaPicker implements VASTMediaPicker {
 			// mediaFile url
 			String url = mediaFile.getValue();
 			if (TextUtils.isEmpty(url)) {
-				SourceKitLogger.d(TAG, "Validator error: mediaFile url empty");
+				VASTLog.d(TAG, "Validator error: mediaFile url empty");
 				iter.remove();
 				continue;
 			}
@@ -161,7 +161,7 @@ public class DefaultMediaPicker implements VASTMediaPicker {
 			// get the difference between the area of the MediaFile and the area of the screen
 			int obj1Diff = Math.abs(obj1Area - deviceArea);
 			int obj2Diff = Math.abs(obj2Area - deviceArea);
-			 SourceKitLogger.v(TAG, "AreaComparator: obj1:" + obj1Diff +" obj2:" + obj2Diff);
+			 VASTLog.v(TAG, "AreaComparator: obj1:" + obj1Diff +" obj2:" + obj2Diff);
 				
 			// choose the MediaFile which has the lower difference in area
 			if(obj1Diff < obj2Diff) {
@@ -183,7 +183,7 @@ public class DefaultMediaPicker implements VASTMediaPicker {
 	}
 
 	private VASTMediaFile getBestMatch(List<VASTMediaFile> list) {
-	     SourceKitLogger.d(TAG, "getBestMatch");
+	     VASTLog.d(TAG, "getBestMatch");
 	     
 		// Iterate through the sorted list and return the first compatible media.
 		// If none of the media file is compatible, return null

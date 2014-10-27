@@ -6,7 +6,7 @@
 
 package org.nexage.sourcekit.vastdemo;
 
-import org.nexage.sourcekit.util.SourceKitLogger;
+import org.nexage.sourcekit.util.VASTLog;
 import org.nexage.sourcekit.vastdemo.adapter.MainPagerAdapter;
 
 import android.app.ActionBar;
@@ -32,7 +32,7 @@ public class MainActivity extends FragmentActivity implements
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 
-		SourceKitLogger.d(TAG, "onCreate");
+		VASTLog.d(TAG, "onCreate");
 
 		getWindow().requestFeature(Window.FEATURE_ACTION_BAR);
 		setContentView(R.layout.activity_main);

@@ -13,7 +13,7 @@ import java.net.URL;
 
 import org.nexage.sourcekit.util.DefaultMediaPicker;
 import org.nexage.sourcekit.util.NetworkTools;
-import org.nexage.sourcekit.util.SourceKitLogger;
+import org.nexage.sourcekit.util.VASTLog;
 import org.nexage.sourcekit.vast.activity.VASTActivity;
 import org.nexage.sourcekit.vast.model.VASTModel;
 import org.nexage.sourcekit.vast.processor.VASTMediaPicker;
@@ -27,7 +27,7 @@ public class VASTPlayer {
 
     private static final String TAG = "VASTPlayer";
 
-    public static final String VERSION = "1.0.1";
+    public static final String VERSION = "1.1.1";
 
     // errors that can be returned in the vastError callback method of the
     // VASTPlayerListener
@@ -35,7 +35,7 @@ public class VASTPlayer {
     public static final int ERROR_NO_NETWORK             = 1;
     public static final int ERROR_XML_OPEN_OR_READ       = 2;
     public static final int ERROR_XML_PARSE              = 3;
-    public static final int ERROR_SCHEMA_VALIDATION      = 4;
+    public static final int ERROR_SCHEMA_VALIDATION      = 4; // not used in SDK, only in sourcekit
     public static final int ERROR_POST_VALIDATION        = 5;
     public static final int ERROR_EXCEEDED_WRAPPER_LIMIT = 6;
     public static final int ERROR_VIDEO_PLAYBACK		 = 7;
@@ -56,7 +56,7 @@ public class VASTPlayer {
     }
 
     public void loadVideoWithUrl(final String urlString) {
-        SourceKitLogger.d(TAG, "loadVideoWithUrl " + urlString);
+        VASTLog.d(TAG, "loadVideoWithUrl " + urlString);
         vastModel = null;
         if (NetworkTools.connectedToInternet(context)) {
             (new Thread(new Runnable() {
@@ -74,7 +74,7 @@ public class VASTPlayer {
                         }
                     } catch (Exception e) {
                         sendError(ERROR_XML_OPEN_OR_READ);
-            			SourceKitLogger.e(TAG, e.getMessage(), e);
+            			VASTLog.e(TAG, e.getMessage(), e);
                      	return;
                     } finally {
                         try {
@@ -94,7 +94,7 @@ public class VASTPlayer {
     }
 
     public void loadVideoWithData(final String xmlData) {
-        SourceKitLogger.v(TAG, "loadVideoWithData\n" + xmlData);
+        VASTLog.v(TAG, "loadVideoWithData\n" + xmlData);
         vastModel = null;
         if (NetworkTools.connectedToInternet(context)) {
             (new Thread(new Runnable() {
@@ -118,22 +118,22 @@ public class VASTPlayer {
     }
 
     public void play() {
-        SourceKitLogger.d(TAG, "play");
+        VASTLog.d(TAG, "play");
         if (vastModel != null) {
             if (NetworkTools.connectedToInternet(context)) {
                 Intent vastPlayerIntent = new Intent(context, VASTActivity.class);
-                vastPlayerIntent.putExtra("org.nexage.sourcekit.vast.player.vastModel", vastModel);
+                vastPlayerIntent.putExtra("com.nexage.android.vast.player.vastModel", vastModel);
                 context.startActivity(vastPlayerIntent);
             } else {
                 sendError(ERROR_NO_NETWORK);
             }
         } else {
-            SourceKitLogger.w(TAG, "vastModel is null; nothing to play");
+            VASTLog.w(TAG, "vastModel is null; nothing to play");
         }
     }
 
     private void sendReady() {
-        SourceKitLogger.d(TAG, "sendReady");
+        VASTLog.d(TAG, "sendReady");
         if (listener != null) {
             ((Activity)context).runOnUiThread(new Runnable() {
                 @Override
@@ -145,7 +145,7 @@ public class VASTPlayer {
     }
 
     private void sendError(final int error) {
-        SourceKitLogger.d(TAG, "sendError");
+        VASTLog.d(TAG, "sendError");
         if (listener != null) {
             ((Activity)context).runOnUiThread(new Runnable() {
                 @Override

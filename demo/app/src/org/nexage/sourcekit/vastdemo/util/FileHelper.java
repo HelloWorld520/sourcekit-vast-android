@@ -11,9 +11,9 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 
-import android.app.Activity;
+import org.nexage.sourcekit.util.VASTLog;
 
-import org.nexage.sourcekit.util.SourceKitLogger;
+import android.app.Activity;
 
 public class FileHelper {
 
@@ -23,7 +23,7 @@ public class FileHelper {
 	// the content as string
 	public static String getFileContent(Activity activity, String fileName) {
 		StringBuffer sb = new StringBuffer();
-		SourceKitLogger.v(TAG, "getFileContent\n");
+		VASTLog.v(TAG, "getFileContent\n");
 		
 		try {
 			InputStream is = activity.getResources().getAssets().open(fileName);
@@ -38,7 +38,7 @@ public class FileHelper {
 			e.printStackTrace();
 		}
 		String fileContent = sb.toString();
-		SourceKitLogger.v(TAG, fileContent);
+		VASTLog.v(TAG, fileContent);
 		return fileContent;
 	}
 

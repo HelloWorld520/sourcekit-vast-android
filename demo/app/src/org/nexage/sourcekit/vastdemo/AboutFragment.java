@@ -6,7 +6,7 @@
 
 package org.nexage.sourcekit.vastdemo;
 
-import org.nexage.sourcekit.util.SourceKitLogger;
+import org.nexage.sourcekit.util.VASTLog;
 import org.nexage.sourcekit.vast.VASTPlayer;
 
 import android.content.pm.PackageManager.NameNotFoundException;
@@ -23,7 +23,7 @@ public class AboutFragment extends Fragment {
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,
 			Bundle savedInstanceState) {
-		SourceKitLogger.d(TAG, "onCreateView");
+		VASTLog.d(TAG, "onCreateView");
 
 		View rootView = inflater.inflate(R.layout.fragment_about, container,
 				false);
@@ -34,7 +34,7 @@ public class AboutFragment extends Fragment {
 					getActivity().getPackageName(), 0).versionName;
 			
 		} catch (NameNotFoundException e) {
-			SourceKitLogger.e(TAG, e.getMessage(), e);
+			VASTLog.e(TAG, e.getMessage(), e);
    	}
 
 		// Set versions

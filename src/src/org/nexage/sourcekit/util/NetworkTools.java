@@ -16,7 +16,7 @@ public class NetworkTools {
 
 	// This method return true if it's connected to Internet
 	public static boolean connectedToInternet(Context context) {
-		SourceKitLogger.d(TAG, "Testing connectivity:");
+		VASTLog.d(TAG, "Testing connectivity:");
 		
 		ConnectivityManager cm = (ConnectivityManager) context
 			.getSystemService(Context.CONNECTIVITY_SERVICE);
@@ -24,23 +24,23 @@ public class NetworkTools {
 		NetworkInfo wifiNetwork = cm
 				.getNetworkInfo(ConnectivityManager.TYPE_WIFI);
 		if (wifiNetwork != null && wifiNetwork.isConnected()) {
-			SourceKitLogger.d(TAG, "Connected to Internet");
+			VASTLog.d(TAG, "Connected to Internet");
 			return true;
 		}
 
 		NetworkInfo mobileNetwork = cm
 				.getNetworkInfo(ConnectivityManager.TYPE_MOBILE);
 		if (mobileNetwork != null && mobileNetwork.isConnected()) {
-			SourceKitLogger.d(TAG, "Connected to Internet");
+			VASTLog.d(TAG, "Connected to Internet");
 			return true;
 		}
 
 		NetworkInfo activeNetwork = cm.getActiveNetworkInfo();
 		if (activeNetwork != null && activeNetwork.isConnected()) {
-			SourceKitLogger.d(TAG, "Connected to Internet");
+			VASTLog.d(TAG, "Connected to Internet");
 			return true;
 		}
-		SourceKitLogger.d(TAG, "No Internet connection");
+		VASTLog.d(TAG, "No Internet connection");
 		return false;
 	}
 }

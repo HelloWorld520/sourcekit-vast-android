@@ -19,7 +19,7 @@ import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathFactory;
 
-import org.nexage.sourcekit.util.SourceKitLogger;
+import org.nexage.sourcekit.util.VASTLog;
 import org.nexage.sourcekit.util.XmlTools;
 import org.w3c.dom.Document;
 import org.w3c.dom.NamedNodeMap;
@@ -74,7 +74,7 @@ public class VASTModel implements Serializable {
 	}
 
 	public HashMap<TRACKING_EVENTS_TYPE, List<String>> getTrackingUrls() {
-		SourceKitLogger.d(TAG, "getTrackingUrls");
+		VASTLog.d(TAG, "getTrackingUrls");
 
 		List<String> tracking;
 
@@ -100,7 +100,7 @@ public class VASTModel implements Serializable {
 					try {
 						key = TRACKING_EVENTS_TYPE.valueOf(eventName);
 					} catch (IllegalArgumentException e) {
-						SourceKitLogger.w(TAG, "Event:" + eventName
+						VASTLog.w(TAG, "Event:" + eventName
 								+ " is not valid. Skipping it.");
 						continue;
 					}
@@ -121,7 +121,7 @@ public class VASTModel implements Serializable {
 			}
 
 		} catch (Exception e) {
-			SourceKitLogger.e(TAG, e.getMessage(), e);
+			VASTLog.e(TAG, e.getMessage(), e);
 			return null;
 		}
 
@@ -129,7 +129,7 @@ public class VASTModel implements Serializable {
 	}
 
 	public List<VASTMediaFile> getMediaFiles() {
-		SourceKitLogger.d(TAG, "getMediaFiles");
+		VASTLog.d(TAG, "getMediaFiles");
 
 		ArrayList<VASTMediaFile> mediaFiles = new ArrayList<VASTMediaFile>();
 
@@ -196,7 +196,7 @@ public class VASTModel implements Serializable {
 			}
 
 		} catch (Exception e) {
-			SourceKitLogger.e(TAG, e.getMessage(), e);
+			VASTLog.e(TAG, e.getMessage(), e);
 			return null;
 		}
 
@@ -204,7 +204,7 @@ public class VASTModel implements Serializable {
 	}
 
 	public String getDuration() {
-		SourceKitLogger.d(TAG, "getDuration");
+		VASTLog.d(TAG, "getDuration");
 
 		String duration = null;
 
@@ -223,7 +223,7 @@ public class VASTModel implements Serializable {
 			}
 
 		} catch (Exception e) {
-			SourceKitLogger.e(TAG, e.getMessage(), e);
+			VASTLog.e(TAG, e.getMessage(), e);
 			return null;
 		}
 
@@ -231,7 +231,7 @@ public class VASTModel implements Serializable {
 	}
 
 	public VideoClicks getVideoClicks() {
-		SourceKitLogger.d(TAG, "getVideoClicks");
+		VASTLog.d(TAG, "getVideoClicks");
 
 		VideoClicks videoClicks = new VideoClicks();
 
@@ -274,7 +274,7 @@ public class VASTModel implements Serializable {
 			}
 
 		} catch (Exception e) {
-			SourceKitLogger.e(TAG, e.getMessage(), e);
+			VASTLog.e(TAG, e.getMessage(), e);
 			return null;
 		}
 
@@ -282,7 +282,7 @@ public class VASTModel implements Serializable {
 	}
 
 	public List<String> getImpressions() {
-		SourceKitLogger.d(TAG, "getImpressions");
+		VASTLog.d(TAG, "getImpressions");
 
 		List<String> list = getListFromXPath(impressionXPATH);
 		
@@ -292,7 +292,7 @@ public class VASTModel implements Serializable {
 
 	public List<String>  getErrorUrl() {
 		
-		SourceKitLogger.d(TAG, "getErrorUrl");
+		VASTLog.d(TAG, "getErrorUrl");
 
 		List<String> list = getListFromXPath(errorUrlXPATH);
 		
@@ -304,7 +304,7 @@ public class VASTModel implements Serializable {
 	
 	private List<String>  getListFromXPath(String xPath) {
 		
-		SourceKitLogger.d(TAG, "getListFromXPath");
+		VASTLog.d(TAG, "getListFromXPath");
 
 		ArrayList<String> list = new ArrayList<String>();
 		
@@ -323,7 +323,7 @@ public class VASTModel implements Serializable {
 			}
 
 		} catch (Exception e) {		
-			SourceKitLogger.e(TAG, e.getMessage(), e);
+			VASTLog.e(TAG, e.getMessage(), e);
 			return null;
 		}
 
@@ -334,27 +334,27 @@ public class VASTModel implements Serializable {
 	
 	
 	private void writeObject(ObjectOutputStream oos) throws IOException {
-		SourceKitLogger.d(TAG, "writeObject: about to write");
+		VASTLog.d(TAG, "writeObject: about to write");
 		oos.defaultWriteObject();
 
 		String data = XmlTools.xmlDocumentToString(vastsDocument);
 		// oos.writeChars();
 		oos.writeObject(data);
-		SourceKitLogger.d(TAG, "done writing");
+		VASTLog.d(TAG, "done writing");
 
 	}
 
 	private void readObject(ObjectInputStream ois)
 			throws ClassNotFoundException, IOException {
-		SourceKitLogger.d(TAG, "readObject: about to read");
+		VASTLog.d(TAG, "readObject: about to read");
 		ois.defaultReadObject();
 
 		String vastString = (String) ois.readObject();
-		SourceKitLogger.d(TAG, "vastString data is:\n" + vastString + "\n");
+		VASTLog.d(TAG, "vastString data is:\n" + vastString + "\n");
 
 		vastsDocument = XmlTools.stringToDocument(vastString);
 
-		SourceKitLogger.d(TAG, "done reading");
+		VASTLog.d(TAG, "done reading");
 	}
 
 	public String getPickedMediaFileURL() {

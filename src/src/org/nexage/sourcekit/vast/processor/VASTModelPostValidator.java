@@ -8,7 +8,7 @@ package org.nexage.sourcekit.vast.processor;
 
 import java.util.List;
 
-import org.nexage.sourcekit.util.SourceKitLogger;
+import org.nexage.sourcekit.util.VASTLog;
 import org.nexage.sourcekit.vast.model.VASTMediaFile;
 import org.nexage.sourcekit.vast.model.VASTModel;
 
@@ -27,10 +27,10 @@ public class VASTModelPostValidator {
     // further to display this on the MediaPlayer.
     
     public static boolean validate(VASTModel model, VASTMediaPicker mediaPicker) {
-        SourceKitLogger.d(TAG, "validate");
+        VASTLog.d(TAG, "validate");
 
         if (!validateModel(model)) {
-            SourceKitLogger.d(TAG, "Validator returns: not valid (invalid model)");
+            VASTLog.d(TAG, "Validator returns: not valid (invalid model)");
             return false;
         }
 
@@ -48,24 +48,24 @@ public class VASTModelPostValidator {
 					// Let's set this value inside VASTModel so that it can be
 					// accessed from VASTPlayer
 					model.setPickedMediaFileURL(url);
-					SourceKitLogger.d(TAG,
+					VASTLog.d(TAG,
 							"mediaPicker selected mediaFile with URL " + url);
 				}
 			}
 
         }
         else {
-            SourceKitLogger.w(TAG, "mediaPicker: We don't have a compatible media file to play.");
+            VASTLog.w(TAG, "mediaPicker: We don't have a compatible media file to play.");
         }
         
-        SourceKitLogger.d(TAG, "Validator returns: " + (isValid?"valid":"not valid (no media file)"));
+        VASTLog.d(TAG, "Validator returns: " + (isValid?"valid":"not valid (no media file)"));
         
         return isValid;
     }
     
 
     private static boolean validateModel(VASTModel model) {
-        SourceKitLogger.d(TAG, "validateModel");
+        VASTLog.d(TAG, "validateModel");
         boolean isValid = true;
         
         // There should be at least one impression.
@@ -77,7 +77,7 @@ public class VASTModelPostValidator {
         // There must be at least one VASTMediaFile object       
         List<VASTMediaFile> mediaFiles = model.getMediaFiles();
         if (mediaFiles == null || mediaFiles.size() == 0) {
-        	SourceKitLogger.d(TAG, "Validator error: mediaFile list invalid");
+        	VASTLog.d(TAG, "Validator error: mediaFile list invalid");
         	isValid = false;
         }
               

@@ -10,7 +10,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.nexage.sourcekit.util.SourceKitLogger;
+import org.nexage.sourcekit.util.VASTLog;
 import org.nexage.sourcekit.vast.VASTPlayer;
 import org.nexage.sourcekit.vastdemo.adapter.VASTFileListAdapter;
 import org.nexage.sourcekit.vastdemo.adapter.VASTListItem;
@@ -32,7 +32,7 @@ public class VASTSamplesFragment extends ListFragment {
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,
 			Bundle savedInstanceState) {
-		SourceKitLogger.d(TAG, "onCreateView");
+		VASTLog.d(TAG, "onCreateView");
 
 		VASTFileListAdapter adapter = new VASTFileListAdapter(
 				inflater.getContext(), getTestFiles());
@@ -49,7 +49,7 @@ public class VASTSamplesFragment extends ListFragment {
 		// Find the selected row
 		VASTListItem selectedListItem = (VASTListItem) getListAdapter()
 				.getItem(position);
-		SourceKitLogger.d(TAG, "Selected List item: " + selectedListItem.getTitle());
+		VASTLog.d(TAG, "Selected List item: " + selectedListItem.getTitle());
 		
 		this.getListView().setClickable(false); // Disable multiple taps
 
@@ -63,7 +63,7 @@ public class VASTSamplesFragment extends ListFragment {
 
 						@Override
 						public void vastReady() {
-							SourceKitLogger.i(TAG,
+							VASTLog.i(TAG,
 									"VAST Document is ready and we can play it now");
 							newPlayer.play();
 						}
@@ -71,7 +71,7 @@ public class VASTSamplesFragment extends ListFragment {
 						@Override
 						public void vastError(int error) {
 						    String message = "Unable to play VAST Document: Error: " + error;
-						    SourceKitLogger.e(TAG,  message);
+						    VASTLog.e(TAG,  message);
 							getListView().setClickable(true);
 						}
 					});
@@ -82,7 +82,7 @@ public class VASTSamplesFragment extends ListFragment {
 	}
 
 	private ArrayList<VASTListItem> getTestFiles() {
-		SourceKitLogger.d(TAG, "getTestFiles");
+		VASTLog.d(TAG, "getTestFiles");
 		
 		String[] files = null;
 
@@ -99,7 +99,7 @@ public class VASTSamplesFragment extends ListFragment {
 		try {
 			files = getResources().getAssets().list("");
 		} catch (IOException e) {
-			SourceKitLogger.e(TAG, e.getMessage(), e);
+			VASTLog.e(TAG, e.getMessage(), e);
 		}
 		if (files != null) {
 			for (int i = 0; i < files.length; i++) {
@@ -108,9 +108,9 @@ public class VASTSamplesFragment extends ListFragment {
 
 				// Ignore some files which were created by Android
 				if (fileName.equals("images") || fileName.equals("sounds") || fileName.equals("webkit")) {
-					SourceKitLogger.d(TAG, "We will ignore " + fileName);
+					VASTLog.d(TAG, "We will ignore " + fileName);
 				} else {
-					SourceKitLogger.d(TAG, files[i]);
+					VASTLog.d(TAG, files[i]);
 					String displayName = (map.get(fileName) == null ? fileName : map.get(fileName));
 					testFiles.add(new VASTListItem(displayName, fileName + ".xml"));
 				}
