@@ -17,6 +17,7 @@ import javax.xml.parsers.DocumentBuilderFactory;
 
 import org.nexage.sourcekit.util.VASTLog;
 import org.nexage.sourcekit.util.XmlTools;
+import org.nexage.sourcekit.util.XmlValidation;
 import org.nexage.sourcekit.vast.VASTPlayer;
 import org.nexage.sourcekit.vast.model.VASTModel;
 import org.nexage.sourcekit.vast.model.VAST_DOC_ELEMENTS;
@@ -36,6 +37,7 @@ public final class VASTProcessor {
 	// Maximum number of VAST files that can be read (wrapper file(s) + actual
 	// target file)
 	private static final int MAX_VAST_LEVELS = 5;
+	private static final boolean IS_VALIDATION_ON = false;
 
 	private VASTMediaPicker mediaPicker;
 	private VASTModel vastModel;
@@ -113,6 +115,12 @@ public final class VASTProcessor {
 		if (doc == null) {
 			return VASTPlayer.ERROR_XML_PARSE;
 		}
+		
+		if (IS_VALIDATION_ON) {
+			if (!validateAgainstSchema(doc)) {
+				return VASTPlayer.ERROR_SCHEMA_VALIDATION;
+			}
+		}
 
 		merge(doc);
 
@@ -173,6 +181,20 @@ public final class VASTProcessor {
 		mergedVastDocs.append(doc);
 		
 		VASTLog.d(TAG, "Merge successful.");
+	}
+	
+	// Validator using mfXerces.....
+	private boolean validateAgainstSchema(Document doc) {
+		VASTLog.d(TAG, "About to validate doc against schema.");
+		InputStream stream = VASTProcessor.class
+				.getResourceAsStream("assets/vast_2_0_1_schema.xsd");
+		String xml = XmlTools.xmlDocumentToString(doc);
+		boolean isValid = XmlValidation.validate(stream, xml);
+		try {
+			stream.close();
+		} catch (IOException e) {
+		}
+		return isValid;
 	}
 
 }
