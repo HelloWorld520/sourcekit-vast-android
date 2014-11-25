@@ -74,6 +74,16 @@ public class VASTSamplesFragment extends ListFragment {
 						    VASTLog.e(TAG,  message);
 							getListView().setClickable(true);
 						}
+						
+						@Override
+						public void vastClick() {
+						    VASTLog.e(TAG, "VAST click event fired");
+						}
+
+						@Override
+						public void vastComplete() {
+							VASTLog.e(TAG, "VAST complete event fired");
+						}
 					});
 
 			newPlayer.loadVideoWithData(vastXMLContent);

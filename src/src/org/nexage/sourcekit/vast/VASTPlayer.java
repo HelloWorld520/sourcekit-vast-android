@@ -27,7 +27,7 @@ public class VASTPlayer {
 
     private static final String TAG = "VASTPlayer";
 
-    public static final String VERSION = "1.1.1";
+    public static final String VERSION = "1.2";
 
     // errors that can be returned in the vastError callback method of the
     // VASTPlayerListener
@@ -40,19 +40,21 @@ public class VASTPlayer {
     public static final int ERROR_EXCEEDED_WRAPPER_LIMIT = 6;
     public static final int ERROR_VIDEO_PLAYBACK		 = 7;
 
+    private Context context;
+
     public interface VASTPlayerListener {
         public void vastReady();
         public void vastError(int error);
+        public void vastClick();
+        public void vastComplete();
     }
-
-    private Context context;
-
-    private VASTPlayerListener listener;
+    
+    public static VASTPlayerListener listener;
     private VASTModel vastModel;
 
     public VASTPlayer(Context context, VASTPlayerListener listener) {
         this.context = context;
-        this.listener = listener;
+        VASTPlayer.listener = listener;
     }
 
     public void loadVideoWithUrl(final String urlString) {
@@ -155,5 +157,4 @@ public class VASTPlayer {
             });
         }
     }
-
 }

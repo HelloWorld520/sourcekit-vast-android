@@ -1,14 +1,15 @@
-Nexage Integration SourceKit for VAST
+Nexage SourceKit-VAST for Android
 =====================================
 
-Nexage Integration SourceKit for VAST is an easy to use library which implements the IAB VAST 2.0 spec (http://www.iab.net/guidelines/508676/digitalvideo/vsuite/vast/vast_copy). It is written for Android and works in both phone & tablet apps.
+Nexage SourceKit-VAST for Android is an open sourced IAB VAST 2.0 compliant rendering engine for HTML ad creatives.
+
+For more information on IAB VAST 2.0 compliance please visit http://www.iab.net/guidelines/508676/digitalvideo/vsuite/vast/vast_copy
 
 **Features:**
 
 - VAST 2 implementation
 - Handles VAST & VAST Wrapper
 - Optionally choose to validate with Xerces
-- Integrates with just a few lines of code
 
 **Requirements:**
 
@@ -18,64 +19,40 @@ Nexage Integration SourceKit for VAST is an easy to use library which implements
 Getting Started
 ===============
 
-Step 1. Import the "VAST" project into Eclipse where you have your main App.
+Step 1: Import the VAST project into your Eclipse workspace.
 
-Step 2. Include VAST Library under Project Properties -> Android section.
+Step 2: Include the VAST library in your project under Project Properties -> Android -> Library.
 
-Step 3. Add the following permissions to your app's Android manifest.
+Step 3: Add the following Activity into AndroidManifest.xml under the <application> tag.
+
+	<activity
+		android:name="org.nexage.sourcekit.vast.activity.VASTActivity"
+		android:theme="@android:style/Theme.NoTitleBar.Fullscreen" />
+
+Step 4: Add the following permissions to the AndroidManifest.xml under the <manifest> tag.
 
 	<uses-permission android:name="android.permission.INTERNET"></uses-permission>
 	<uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"></uses-permission>
 
-Step 4. Add the following activity element to your app's Android manifest.
+Step 5: Use VASTPlayer in your project.
 
-	<activity
-            android:name="org.nexage.sourcekit.vast.activity.VASTActivity"
-            android:screenOrientation="landscape" >
-	</activity>
-    
-Step 5. Import required packages into your activity.
+	VASTPlayer vastPlayer = new VASTPlayer(this, this);
+	vastPlayer.loadVideoWithData(vastXMLContent);
+	// OR: vastPlayer.loadVideoWithUrl(urlOfContent);
 
-	import org.nexage.sourcekit.vast.VASTPlayer;
-	
-Step 6. Declare a VASTPlayer member variable in your activity (or fragment).
+Implement VASTPlayerListener in your activity to listen for VASTPlayer ready or fail events.
 
-	private VASTPlayer vastPlayer;
-
-Step 7. Initialize the VASTPlayer object with a listener.
-	
-	vastPlayer = new VASTPlayer(this, // Activity
-		new VASTPlayer.VASTPlayerListener() {
-			@Override
-			public void vastReady() {
-				Log.i(TAG, "VAST Document is ready and we can play it now");
-			}
-
-			@Override
-			public void vastError(int error) {
-				Log.e(TAG, "Unable to play VAST Document (error code: " + error + ")");
-			}
-		}
-	);
-	
-Step 8. Load the VASTPlayer.
-
-	private void loadPlayer() {
-		vastPlayer.loadVideoWithData(vastXMLContent);
-		// OR: vastPlayer.loadVideoWithUrl(urlOfVastDoc);
-	}
-	
-Step 9. After you've received the vastReady callback, you can play the video.
+After you've received the vastReady callback you can play the video.
 
 	vastPlayer.play();
 
-That's it! 
+That's it!
 
 
 LICENSE
 =======
 
-Copyright (c) 2014, Nexage, Inc.<br/> 
+Copyright (c) 2014, Nexage, Inc.<br/>
 All rights reserved.<br/>
 Provided under BSD-3 license as follows:<br/>
 
@@ -93,7 +70,7 @@ met:
 3.  Neither the name of Nexage nor the names of its
     contributors may be used to endorse or promote products derived from
     this software without specific prior written permission.
- 
+
 THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS
 IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED
 TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A

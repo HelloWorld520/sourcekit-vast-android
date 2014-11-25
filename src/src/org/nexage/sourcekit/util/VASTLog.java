@@ -12,7 +12,7 @@ import android.util.Log;
 
 public class VASTLog {
 
-	private static String TAG = "SourceKitLogger";
+	private static String TAG = "VAST";
 	
 	public enum LOG_LEVEL {
 
@@ -20,7 +20,8 @@ public class VASTLog {
 		debug (2),
 		info (3),
 		warning (4),
-		error (5);
+		error (5),
+		none (6);
 
 		private int value;
 
@@ -36,7 +37,7 @@ public class VASTLog {
 	}
 
 	
-	private static LOG_LEVEL LEVEL = LOG_LEVEL.verbose;
+	private static LOG_LEVEL LEVEL = LOG_LEVEL.error;
 
 	public static void v(String tag, String msg) {
 		if (LEVEL.getValue() <= LOG_LEVEL.verbose.getValue()) {
@@ -63,16 +64,24 @@ public class VASTLog {
 	}
 
 	public static void e(String tag, String msg) {
-		Log.e(tag, msg);
+		if (LEVEL.getValue() <= LOG_LEVEL.error.getValue()) {
+			Log.e(tag, msg);
+		}
 	}
 
 	public static void e(String tag, String msg, Throwable tr) {
-		Log.e(tag, msg, tr );
+		if (LEVEL.getValue() <= LOG_LEVEL.error.getValue()) {
+			Log.e(tag, msg, tr );
+		}
 	}
 
 	public static void setLoggingLevel(LOG_LEVEL logLevel) {
 		Log.i(TAG, "Changing logging level from :"+LEVEL+". To:"+logLevel);
 		LEVEL = logLevel;
+	}
+	
+	public static LOG_LEVEL getLoggingLevel() {
+		return LEVEL;
 	}
 
 }

@@ -19,6 +19,7 @@ import java.util.TimerTask;
 import org.nexage.sourcekit.util.Assets;
 import org.nexage.sourcekit.util.HttpTools;
 import org.nexage.sourcekit.util.VASTLog;
+import org.nexage.sourcekit.vast.VASTPlayer;
 import org.nexage.sourcekit.vast.model.TRACKING_EVENTS_TYPE;
 import org.nexage.sourcekit.vast.model.VASTModel;
 
@@ -124,7 +125,6 @@ public class VASTActivity extends Activity implements OnCompletionListener,
 			Intent i = getIntent();
 			mVastModel = (VASTModel) i
 					.getSerializableExtra("com.nexage.android.vast.player.vastModel");
-
 			if (mVastModel == null) {
 				VASTLog.e(TAG, "vastModel is null. Stopping activity.");
 				finish();
@@ -447,6 +447,10 @@ public class VASTActivity extends Activity implements OnCompletionListener,
 	private void processClickThroughEvent() {
 		VASTLog.d(TAG, "entered processClickThroughEvent:");
 		
+		if(VASTPlayer.listener!=null) {
+			VASTPlayer.listener.vastClick();
+		}
+		
 		String clickThroughUrl = mVastModel.getVideoClicks().getClickThrough();
 		VASTLog.d(TAG, "clickThrough url: " + clickThroughUrl);
 
@@ -704,7 +708,9 @@ public class VASTActivity extends Activity implements OnCompletionListener,
 	public void onCompletion(MediaPlayer mediaPlayer) {
 		VASTLog
 				.d(TAG, "entered onCOMPLETION -- (MediaPlayer callback)");
- 
+		if(VASTPlayer.listener!=null) {
+			VASTPlayer.listener.vastComplete();
+		}
 		stopVideoProgressTimer();
 		stopToolBarTimer();
 		mButtonPanel.setVisibility(VISIBLE);
