@@ -84,6 +84,11 @@ public class VASTSamplesFragment extends ListFragment {
 						public void vastComplete() {
 							VASTLog.e(TAG, "VAST complete event fired");
 						}
+
+						@Override
+						public void vastDismiss() {
+							VASTLog.e(TAG, "VAST dismiss event fired");
+						}
 					});
 
 			newPlayer.loadVideoWithData(vastXMLContent);

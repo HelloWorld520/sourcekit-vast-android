@@ -26,6 +26,8 @@ import org.nexage.sourcekit.vast.model.VASTModel;
 import android.app.Activity;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
+import android.content.pm.PackageManager;
+import android.content.pm.ResolveInfo;
 import android.content.res.Configuration;
 import android.graphics.Color;
 import android.graphics.drawable.Drawable;
@@ -127,7 +129,7 @@ public class VASTActivity extends Activity implements OnCompletionListener,
 					.getSerializableExtra("com.nexage.android.vast.player.vastModel");
 			if (mVastModel == null) {
 				VASTLog.e(TAG, "vastModel is null. Stopping activity.");
-				finish();
+				finishVAST();
 			} else {
 				hideTitleStatusBars();
 				mHandler = new Handler();
@@ -463,7 +465,17 @@ public class VASTActivity extends Activity implements OnCompletionListener,
 		try {
 			Uri uri = Uri.parse(clickThroughUrl);
 			Intent intent = new Intent(Intent.ACTION_VIEW, uri);
-			startActivity(intent);
+			ResolveInfo resolvable = getPackageManager().resolveActivity(intent, PackageManager.GET_INTENT_FILTERS);
+			if(resolvable == null) {
+				VASTLog.e(TAG, "Clickthrough error occured, uri unresolvable");
+				if (mCurrentVideoPosition>=mMediaPlayer.getCurrentPosition()*0.99) {
+					mMediaPlayer.start();
+				}
+				activateButtons(true);
+				return;
+			} else {
+				startActivity(intent);
+			}
 		} catch (NullPointerException e) {
 			VASTLog.e(TAG, e.getMessage(), e);
 		}
@@ -478,9 +490,8 @@ public class VASTActivity extends Activity implements OnCompletionListener,
 			this.processEvent(TRACKING_EVENTS_TYPE.close);
 		}
 		
+		finishVAST();
 		
-		finish();
-
 		VASTLog.d(TAG, "leaving closeClicked()");
 	}
 
@@ -542,6 +553,9 @@ public class VASTActivity extends Activity implements OnCompletionListener,
 	public void surfaceCreated(SurfaceHolder holder) {
 		VASTLog.d(TAG, "surfaceCreated -- (SurfaceHolder callback)");
 		try {
+			if(mMediaPlayer==null) {
+				createMediaPlayer();
+			}
 			this.showProgressBar();
 			mMediaPlayer.setDisplay(mSurfaceHolder);
 			String url = mVastModel.getPickedMediaFileURL();
@@ -708,9 +722,6 @@ public class VASTActivity extends Activity implements OnCompletionListener,
 	public void onCompletion(MediaPlayer mediaPlayer) {
 		VASTLog
 				.d(TAG, "entered onCOMPLETION -- (MediaPlayer callback)");
-		if(VASTPlayer.listener!=null) {
-			VASTPlayer.listener.vastComplete();
-		}
 		stopVideoProgressTimer();
 		stopToolBarTimer();
 		mButtonPanel.setVisibility(VISIBLE);
@@ -718,6 +729,10 @@ public class VASTActivity extends Activity implements OnCompletionListener,
 		if ( !mIsPlayBackError && !mIsCompleted) {
 			mIsCompleted = true;
 			this.processEvent(TRACKING_EVENTS_TYPE.complete);
+			
+			if(VASTPlayer.listener!=null) {
+				VASTPlayer.listener.vastComplete();
+			}
 		}
 
 	}
@@ -757,7 +772,10 @@ public class VASTActivity extends Activity implements OnCompletionListener,
 
 	private void startToolBarTimer() {
 		VASTLog.d(TAG, "entered startToolBarTimer");
-
+		if(mQuartile==4) {
+			// we are at the end of the video, we dont want ot ever hide the toolbar now
+			return;
+		}
 		if (mMediaPlayer!= null && mMediaPlayer.isPlaying()) {   
 			stopToolBarTimer();
 			mToolBarTimer = new Timer();
@@ -885,6 +903,7 @@ public class VASTActivity extends Activity implements OnCompletionListener,
 						stopVideoProgressTimer();
 						processErrorEvent();
 						closeClicked();
+						finishVAST();
 					}
 				}
 
@@ -918,4 +937,8 @@ public class VASTActivity extends Activity implements OnCompletionListener,
 		
 	}
 
+	private void finishVAST() {
+		VASTPlayer.listener.vastDismiss();
+		finish();
+	}
 }
